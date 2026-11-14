@@ -1,4 +1,4 @@
-# Liedwünsche zum 60. Geburtstag
+# Liedwünsche zu Silvias 60. Geburtstag
 
 Eine Webseite, auf der Gäste per Handy Liedwünsche für den Abend eintragen und mit „Ich auch“ für die Wünsche anderer stimmen. Die beliebtesten Lieder stehen oben. Der DJ öffnet denselben Link, liest die Liste und spielt die Lieder in seinem eigenen Programm. Bei jedem Wunsch gibt es einen kleinen Link „In Spotify suchen“.
 
@@ -8,15 +8,16 @@ Die Seite läuft kostenlos auf Vercel. Die Wünsche liegen in einer Upstash-Redi
 
 | Datei | Wozu |
 | --- | --- |
-| `config.js` | Name, Datum, Ort und Begrüßungstext. **Nur diese Datei musst du anpassen.** |
+| `config.js` | Name, Datum, Ort und wer für den Datenschutzhinweis verantwortlich ist. **Nur diese Datei musst du anpassen.** |
 | `index.html` | Die Seite |
 | `styles.css` | Aussehen |
 | `api/` | Speichern und Abstimmen |
-| `lib/db.js` | Datenbankanbindung |
+| `lib/db.js` | Datenbankanbindung und automatische Löschfrist |
+| `fonts/` | Schriften Shrikhand und Atkinson Hyperlegible (SIL Open Font License), liegen auf dem eigenen Server |
 
 ## Einrichten (ca. 10 Minuten, am besten am Laptop)
 
-1. **Texte anpassen:** In `config.js` den Namen, das Datum und den Ort eintragen.
+1. **Texte anpassen:** In `config.js` Datum, Ort und bei `responsible` deinen Namen mit einer Kontaktmöglichkeit eintragen.
 2. **Auf GitHub hochladen:** Auf github.com ein neues Repository anlegen (z. B. `liedwuensche-60`, gern privat). Dann „uploading an existing file“ wählen und den **Inhalt** dieses Ordners hineinziehen (die Ordner `api` und `lib` müssen mit hoch). Mit „Commit changes“ bestätigen.
 3. **Mit Vercel verbinden:** Auf vercel.com mit dem GitHub-Konto anmelden, „Add New… → Project“, das Repository auswählen. Framework-Preset: **Other**, dann „Deploy“.
 4. **Datenbank anschließen:** Im Vercel-Projekt auf den Reiter **Storage** → „Create Database“ → **Upstash for Redis** (kostenloser Plan) → mit diesem Projekt verbinden. Vercel trägt die Zugangsdaten automatisch ein.
@@ -29,6 +30,15 @@ Tipp: In Vercel unter Settings → Domains kannst du die Adresse kürzer machen,
 ## Ohne GitHub
 
 Wer Node.js installiert hat, kann im Ordner einfach `npx vercel` ausführen und den Fragen folgen. Danach Schritte 4 und 5 im Vercel-Dashboard.
+
+## Datenschutz
+
+* Keine Cookies, kein Tracking, keine Google-Fonts, keine Einbettungen fremder Dienste. Die Seite lädt nur Dateien vom eigenen Server.
+* Gespeichert werden nur Titel, Interpret und freiwillig Name und Widmung. Keine IP-Adressen in der Datenbank.
+* Die Liste löscht sich 30 Tage nach dem letzten Wunsch oder der letzten Stimme von selbst (`RETENTION_DAYS` in `lib/db.js`).
+* Die Seite läuft in Frankfurt (`regions` in `vercel.json`). Bei der Upstash-Datenbank sollte die Region ebenfalls in der EU liegen (z. B. Frankfurt, `eu-central-1`). Das siehst du in Vercel unter Storage → Datenbank → Settings.
+* Suchmaschinen werden gebeten, die Seite nicht aufzunehmen (`noindex`).
+* Auf der Seite gibt es unten einen aufklappbaren Datenschutzhinweis.
 
 ## Gut zu wissen
 

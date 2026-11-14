@@ -1,4 +1,4 @@
-import { K, redis, body, validId, fail } from "../lib/db.js";
+import { K, redis, keepFor, body, validId, fail } from "../lib/db.js";
 
 export default async function handler(req, res) {
   res.setHeader("Cache-Control", "no-store");
@@ -19,6 +19,7 @@ export default async function handler(req, res) {
       await r.hset(K.votes, { [id]: 0 });
       votes = 0;
     }
+    await keepFor(r.pipeline()).exec();
     return res.status(200).json({ id, votes });
   } catch (err) {
     return fail(res, err);

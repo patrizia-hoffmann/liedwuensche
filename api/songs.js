@@ -1,4 +1,4 @@
-import { K, MAX_SONGS, redis, body, clean, normalize, newId, listSongs, fail } from "../lib/db.js";
+import { K, MAX_SONGS, redis, keepFor, body, clean, normalize, newId, listSongs, fail } from "../lib/db.js";
 
 export default async function handler(req, res) {
   res.setHeader("Cache-Control", "no-store");
@@ -31,13 +31,14 @@ export default async function handler(req, res) {
         const existing = String(await r.hget(K.keys, key));
         if (await r.hexists(K.songs, existing)) {
           const votes = await r.hincrby(K.votes, existing, 1);
+          await keepFor(r.pipeline()).exec();
           return res.status(200).json({ status: "duplicate", id: existing, votes });
         }
         await r.hset(K.keys, { [key]: id }); // verwaister Eintrag, neu anlegen
       }
 
       const song = { id, title, artist, name, note, key, createdAt: Date.now() };
-      await r.pipeline().hset(K.songs, { [id]: song }).hset(K.votes, { [id]: 1 }).exec();
+      await keepFor(r.pipeline().hset(K.songs, { [id]: song }).hset(K.votes, { [id]: 1 })).exec();
       return res.status(201).json({ status: "created", id, votes: 1 });
     }
 
