@@ -170,6 +170,45 @@ details p { margin: 10px 0 0; }
   .btn, .field input, .field textarea { transition: none; }
 }
 
+/* ---------- Konfetti ---------- */
+#confetti { position: fixed; inset: 0; width: 100vw; height: 100vh; pointer-events: none; z-index: 100; }
+
+/* ---------- Gratulieren ---------- */
+.cheer-row { display: flex; flex-wrap: wrap; align-items: center; gap: 10px 14px; margin-top: 24px; }
+.cheer {
+  font: inherit; font-size: 17px; font-weight: 700;
+  color: var(--cobalt); background: var(--lilac);
+  border: 0; border-radius: 999px;
+  padding: 13px 20px;
+  cursor: pointer;
+}
+.cheer.done { background: #fff; }
+.cheer.bump { animation: bump .45s ease-out; }
+@keyframes bump { 30% { transform: scale(1.08) rotate(-2deg); } 60% { transform: scale(.97) rotate(1deg); } }
+.cheer-count { color: var(--lilac); font-size: 15px; font-weight: 600; }
+.hero :focus-visible { outline-color: #fff; }
+
+.note-box {
+  margin: -8px 0 32px;
+  padding: 20px 18px 16px;
+  background: var(--lilac);
+  border-radius: 24px;
+}
+.note-box h2 { font-size: 24px; color: var(--cobalt); margin-bottom: 14px; }
+.note-box .field input, .note-box .field textarea { background: #fff; }
+.note-box form { display: grid; gap: 10px; }
+.note-actions { display: flex; gap: 8px; }
+.note-actions .btn { flex: 1; }
+.btn.ghost { background: transparent; color: var(--cobalt); box-shadow: inset 0 0 0 1.5px var(--cobalt); flex: 0 0 auto; }
+
+.count.lilac { background: var(--lilac); }
+.notes { list-style: none; margin: 8px 0 0; padding: 0; display: grid; gap: 10px; }
+.notes li { background: #fff; border-radius: 18px; padding: 14px 16px; box-shadow: inset 0 0 0 1px var(--line); }
+.notes li:nth-child(3n+1) { background: #fbe1da; box-shadow: none; }
+.notes li:nth-child(3n+2) { background: #ece5fa; box-shadow: none; }
+.notes p { margin: 0; font-size: 17px; line-height: 1.4; overflow-wrap: anywhere; }
+.notes span { display: block; margin-top: 6px; color: var(--muted); font-size: 14px; }
+
 /* ---------- Lief schon ---------- */
 .sub-head { margin: 32px 0 0; font-size: 20px; font-weight: 800; letter-spacing: -.02em; color: var(--muted); }
 .list.played .row { opacity: .6; }
@@ -191,3 +230,7 @@ details p { margin: 10px 0 0; }
 .dj-login form { display: grid; gap: 8px; margin-top: 10px; max-width: 320px; }
 .linkish { font: inherit; font-size: 14px; color: var(--muted); background: none; border: 0; padding: 0; text-decoration: underline; text-underline-offset: 3px; cursor: pointer; }
 .btn.small { padding: 11px 18px; font-size: 15px; margin-top: 0; }
+
+@media (prefers-reduced-motion: reduce) {
+  .cheer.bump { animation: none; }
+}
