@@ -14,7 +14,7 @@
 </head>
 <body>
   <canvas id="confetti" aria-hidden="true"></canvas>
-  <main class="wrap">
+  <main class="wrap" id="top">
     <header class="hero">
       <h1><span id="name">silvia</span><span id="age">wird 60.</span></h1>
       <p class="when" id="when" hidden></p>
@@ -23,28 +23,12 @@
         <button class="cheer" id="cheer" type="button"><span aria-hidden="true">🎉</span> <span id="cheer-label">silvia gratulieren</span></button>
         <span class="cheer-count" id="cheer-count" aria-live="polite"></span>
       </div>
-      <a class="jump" id="jump" href="#wuensche">zur liste <span id="jump-count"></span> ↓</a>
+      <div class="jumps">
+        <a class="jump" id="jump" href="#wuensche">zur liste <span id="jump-count"></span> ↓</a>
+        <a class="jump" id="jump-notes" href="#glueckwuensche">glückwünsche lesen <span id="jump-notes-count"></span> ↓</a>
+      </div>
     </header>
 
-    <section class="note-box" id="note-box" hidden aria-labelledby="note-title">
-      <h2 id="note-title">magst du silvia noch was schreiben?</h2>
-      <form id="note-form" autocomplete="off" novalidate>
-        <div class="field">
-          <label for="note-text">dein glückwunsch</label>
-          <textarea id="note-text" name="text" maxlength="280" rows="3" placeholder="alles liebe zum 60.!"></textarea>
-        </div>
-        <div class="field">
-          <label for="note-name">dein name (optional, für alle sichtbar)</label>
-          <input id="note-name" name="name" maxlength="60" placeholder="tante rosi">
-        </div>
-        <div class="hp" aria-hidden="true"><label>Website <input name="website" tabindex="-1"></label></div>
-        <div class="note-actions">
-          <button class="btn" id="note-send" type="submit">senden</button>
-          <button class="btn ghost" id="note-skip" type="button">später</button>
-        </div>
-        <p class="msg" id="note-msg" role="status" aria-live="polite"></p>
-      </form>
-    </section>
 
     <section aria-label="liedwunsch eintragen">
       <form id="wish" autocomplete="off" novalidate>
@@ -90,12 +74,33 @@
       </div>
     </section>
 
-    <section class="charts" id="notes-box" hidden aria-labelledby="notes-title">
+    <section class="charts" id="glueckwuensche" aria-labelledby="notes-title">
       <div class="charts-head">
         <h2 id="notes-title">glückwünsche</h2>
         <span class="count lilac" id="notes-count"></span>
       </div>
+      <button class="btn write" id="note-open" type="button">glückwunsch schreiben</button>
+      <div class="note-box" id="note-box" hidden>
+        <h3 id="note-title">magst du silvia noch was schreiben?</h3>
+        <form id="note-form" autocomplete="off" novalidate>
+          <div class="field">
+            <label for="note-text">dein glückwunsch</label>
+            <textarea id="note-text" name="text" maxlength="280" rows="3" placeholder="alles liebe zum 60.!"></textarea>
+          </div>
+          <div class="field">
+            <label for="note-name">dein name (optional, für alle sichtbar)</label>
+            <input id="note-name" name="name" maxlength="60" placeholder="tante rosi">
+          </div>
+          <div class="hp" aria-hidden="true"><label>Website <input name="website" tabindex="-1"></label></div>
+          <div class="note-actions">
+            <button class="btn" id="note-send" type="submit">senden</button>
+            <button class="btn ghost" id="note-skip" type="button">abbrechen</button>
+          </div>
+          <p class="msg" id="note-msg" role="status" aria-live="polite"></p>
+        </form>
+      </div>
       <ul class="notes" id="notes"></ul>
+      <p class="empty" id="notes-empty">noch keine glückwünsche. schreib den ersten!</p>
     </section>
 
     <footer class="foot">
@@ -109,6 +114,7 @@
         <p>Alles wird 30 Tage nach dem letzten Eintrag automatisch gelöscht. Soll dein Eintrag früher verschwinden, sag einfach Bescheid.</p>
         <p>Die Links „auf spotify suchen“ öffnen Spotify erst, wenn du draufklickst. Ab dann gelten die Datenschutzregeln von Spotify.</p>
       </details>
+      <a class="jump up" href="#top">nach oben ↑</a>
       <div class="dj-login">
         <button class="linkish" id="dj-open" type="button">dj-login</button>
         <form id="dj-form" hidden>
@@ -232,8 +238,9 @@
     $("cheer-count").textContent = n ? n + (n === 1 ? " glückwunsch" : " glückwünsche") : "sei die erste person";
     $("cheer").classList.toggle("done", cheered);
     if (cheered) $("cheer-label").textContent = "nochmal konfetti";
-    $("notes-box").hidden = cheers.notes.length === 0;
+    $("notes-empty").hidden = cheers.notes.length > 0;
     $("notes-count").textContent = cheers.notes.length || "";
+    $("jump-notes-count").textContent = cheers.notes.length ? "(" + cheers.notes.length + ")" : "";
     $("notes").innerHTML = cheers.notes.map((n) => `<li>
         <p>${esc(n.text)}</p>
         ${n.name ? `<span>von ${esc(n.name)}</span>` : ""}
@@ -250,13 +257,20 @@
       cheered = true; store.set("lied60-cheered", true);
       cheers.count = count;
       renderCheers();
-      $("note-name").value = $("note-name").value || $("name-input").value || store.get("lied60-name", "");
-      $("note-box").hidden = false;
-      $("note-box").scrollIntoView({ behavior: reduceMotion ? "auto" : "smooth", block: "nearest" });
+      setTimeout(openNote, reduceMotion ? 0 : 900); // erst Konfetti, dann runter zum Schreiben
     } catch (e) { alert(e.message); }
   });
 
-  $("note-skip").addEventListener("click", () => { $("note-box").hidden = true; });
+  function openNote() {
+    $("note-name").value = $("note-name").value || $("name-input").value || store.get("lied60-name", "");
+    $("note-box").hidden = false;
+    $("note-open").hidden = true;
+    $("glueckwuensche").scrollIntoView({ behavior: reduceMotion ? "auto" : "smooth", block: "start" });
+    setTimeout(() => $("note-text").focus({ preventScroll: true }), reduceMotion ? 0 : 500);
+  }
+  function closeNote() { $("note-box").hidden = true; $("note-open").hidden = false; }
+  $("note-open").addEventListener("click", openNote);
+  $("note-skip").addEventListener("click", closeNote);
 
   $("note-form").addEventListener("submit", async (ev) => {
     ev.preventDefault();
@@ -265,12 +279,14 @@
     $("note-send").disabled = true;
     try {
       await api("/api/cheers", { kind: "note", ...data });
+      if (!cheered) { // wer schreibt, gratuliert auch
+        try { await api("/api/cheers", { kind: "cheer" }); cheered = true; store.set("lied60-cheered", true); } catch {}
+      }
       if (data.name) store.set("lied60-name", data.name);
       confetti($("note-send"));
       ev.target.reset();
-      $("note-box").hidden = true;
+      closeNote();
       await load();
-      $("notes-box").scrollIntoView({ behavior: reduceMotion ? "auto" : "smooth", block: "start" });
     } catch (e) {
       flash($("note-msg"), e.message, "err");
     } finally {

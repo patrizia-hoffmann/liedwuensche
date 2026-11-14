@@ -189,12 +189,12 @@ details p { margin: 10px 0 0; }
 .hero :focus-visible { outline-color: #fff; }
 
 .note-box {
-  margin: -8px 0 32px;
+  margin: 12px 0 14px;
   padding: 20px 18px 16px;
   background: var(--lilac);
   border-radius: 24px;
 }
-.note-box h2 { font-size: 24px; color: var(--cobalt); margin-bottom: 14px; }
+.note-box h3 { font-size: 22px; font-weight: 800; letter-spacing: -.03em; line-height: 1.1; color: var(--cobalt); margin: 0 0 14px; }
 .note-box .field input, .note-box .field textarea { background: #fff; }
 .note-box form { display: grid; gap: 10px; }
 .note-actions { display: flex; gap: 8px; }
@@ -237,8 +237,9 @@ details p { margin: 10px 0 0; }
 
 /* ---------- Schnell zur Liste ---------- */
 html { scroll-behavior: smooth; }
+.jumps { display: flex; flex-wrap: wrap; gap: 6px 22px; margin-top: 18px; }
 .jump {
-  display: inline-block; margin-top: 18px;
+  display: inline-block;
   color: #fff; font-weight: 700; font-size: 16px;
   text-decoration: none;
   border-bottom: 2px solid var(--lilac);
@@ -248,3 +249,5 @@ html { scroll-behavior: smooth; }
 .field.search { margin: 12px 0 2px; }
 .field.search input { padding-top: 24px; }
 @media (prefers-reduced-motion: reduce) { html { scroll-behavior: auto; } }
+.btn.write { width: 100%; margin: 12px 0 14px; background: var(--lilac); color: var(--cobalt); }
+.jump.up { color: var(--cobalt); border-color: var(--cobalt); margin: 8px 0 18px; font-size: 15px; }
