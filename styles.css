@@ -217,7 +217,9 @@ details p { margin: 10px 0 0; }
 .vote.static { cursor: default; border-color: transparent; }
 
 /* ---------- DJ ---------- */
-.dj-hint { margin: 8px 0 4px; padding: 10px 14px; border-radius: 14px; background: var(--sand); font-size: 15px; font-weight: 600; }
+.dj-hint { margin: 8px 0 4px; padding: 10px 14px 12px; border-radius: 14px; background: var(--sand); font-size: 15px; font-weight: 600; }
+.dj-hint p { margin: 0 0 8px; }
+.btn.copy { background: var(--text); color: #fff; }
 .dj-btn {
   display: block; margin-top: 10px;
   font: inherit; font-size: 14px; font-weight: 700;
@@ -251,3 +253,24 @@ html { scroll-behavior: smooth; }
 @media (prefers-reduced-motion: reduce) { html { scroll-behavior: auto; } }
 .btn.write { width: 100%; margin: 12px 0 14px; background: var(--lilac); color: var(--cobalt); }
 .jump.up { color: var(--cobalt); border-color: var(--cobalt); margin: 8px 0 18px; font-size: 15px; }
+
+/* ---------- Karaoke ---------- */
+.charts.karaoke {
+  margin-left: -6px; margin-right: -6px;
+  padding: 26px 18px 14px;
+  background: #e2ece6;
+  border-radius: 30px;
+}
+.karaoke h2 { color: var(--mineral); }
+.karaoke .count { background: var(--mineral); color: #fff; }
+.karaoke .sub { margin: 4px 0 14px; font-size: 16px; }
+.karaoke form { margin-bottom: 8px; }
+.karaoke .field input { background: #fff; }
+.karaoke .btn { background: var(--mineral); }
+.karaoke .field input:focus { box-shadow: inset 0 0 0 2px var(--mineral); }
+.karaoke .row { border-bottom-color: #c9d9cf; }
+.karaoke .vote { background: #fff; border-color: #c9d9cf; }
+.karaoke .vote.on { background: var(--coral); border-color: var(--coral); }
+.karaoke .vote.static { background: transparent; border-color: transparent; }
+.karaoke .dj-btn { background: var(--cobalt); }
+.karaoke .list.played .dj-btn { color: var(--cobalt); box-shadow: inset 0 0 0 1.5px var(--cobalt); background: transparent; }

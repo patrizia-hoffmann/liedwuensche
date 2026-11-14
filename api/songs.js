@@ -1,4 +1,4 @@
-import { K, MAX_SONGS, redis, body, clean, addSong, listAll, fail } from "../lib/db.js";
+import { MAX_SONGS, redis, body, clean, addSong, listAll, pickList, fail } from "../lib/db.js";
 
 export default async function handler(req, res) {
   res.setHeader("Cache-Control", "no-store");
@@ -18,10 +18,11 @@ export default async function handler(req, res) {
       if (!title) return res.status(400).json({ error: "Bitte gib einen Liedtitel ein." });
 
       const r = redis();
-      if ((await r.hlen(K.songs)) >= MAX_SONGS) {
+      const L = pickList(b.list);
+      if ((await r.hlen(L.songs)) >= MAX_SONGS) {
         return res.status(429).json({ error: "Die Wunschliste ist voll." });
       }
-      const out = await addSong(r, { title, artist, name, note });
+      const out = await addSong(r, { title, artist, name, note }, L);
       return res.status(out.status === "created" ? 201 : 200).json(out);
     }
 

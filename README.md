@@ -37,6 +37,14 @@ Das Passwort ist schon eingerichtet. Im Code steht nur seine SHA-256-Prüfsumme 
 
 Oben auf der Seite gibt es den Button „silvia gratulieren“. Ein Tipp zählt einen Glückwunsch und lässt Konfetti fliegen. Danach kann man noch eine Nachricht schreiben. Die Nachrichten stehen unten auf der Seite.
 
+## Karaoke
+
+Eigener Bereich mit eigenem Formular („wer will singen?“) und eigenen Likes. Bei jedem Song gibt es einen Link zur Karaoke-Version auf YouTube. Der DJ kann Songs als „gesungen“ abhaken.
+
+## Liste für rekordbox, Spotify & Co.
+
+Im DJ-Modus kopiert „offene wünsche kopieren“ alle noch nicht gespielten Wünsche als Text (`Interpret - Titel`, nach Likes sortiert). Den Text fügt man z. B. bei TuneMyMusic oder Soundiiz ein und erstellt daraus eine Playlist bei einem Streamingdienst, den rekordbox 7 anbindet (z. B. Spotify, TIDAL, Apple Music, Beatport, SoundCloud). Die Playlist taucht dann in rekordbox auf.
+
 ## Ohne GitHub
 
 Wer Node.js installiert hat, kann im Ordner einfach `npx vercel` ausführen und den Fragen folgen. Danach Schritte 4 und 5 im Vercel-Dashboard.
