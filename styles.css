@@ -132,9 +132,9 @@ h2 {
   font-variant-numeric: tabular-nums;
 }
 /* Die ersten drei Plätze bekommen Farbe */
-.row:nth-child(1) .place { background: var(--coral); color: #fff; box-shadow: none; }
-.row:nth-child(2) .place { background: var(--lilac); color: var(--text); box-shadow: none; }
-.row:nth-child(3) .place { background: var(--mineral); color: #fff; box-shadow: none; }
+.row[data-rank="1"] .place { background: var(--coral); color: #fff; box-shadow: none; }
+.row[data-rank="2"] .place { background: var(--lilac); color: var(--text); box-shadow: none; }
+.row[data-rank="3"] .place { background: var(--mineral); color: #fff; box-shadow: none; }
 .song { min-width: 0; }
 .song .t { font-weight: 700; font-size: 18px; line-height: 1.25; letter-spacing: -.01em; overflow-wrap: anywhere; }
 .song .a { color: var(--muted); }
@@ -234,3 +234,17 @@ details p { margin: 10px 0 0; }
 @media (prefers-reduced-motion: reduce) {
   .cheer.bump { animation: none; }
 }
+
+/* ---------- Schnell zur Liste ---------- */
+html { scroll-behavior: smooth; }
+.jump {
+  display: inline-block; margin-top: 18px;
+  color: #fff; font-weight: 700; font-size: 16px;
+  text-decoration: none;
+  border-bottom: 2px solid var(--lilac);
+  padding-bottom: 1px;
+}
+.charts { scroll-margin-top: 12px; }
+.field.search { margin: 12px 0 2px; }
+.field.search input { padding-top: 24px; }
+@media (prefers-reduced-motion: reduce) { html { scroll-behavior: auto; } }

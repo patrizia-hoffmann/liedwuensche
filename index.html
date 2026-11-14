@@ -23,6 +23,7 @@
         <button class="cheer" id="cheer" type="button"><span aria-hidden="true">🎉</span> <span id="cheer-label">silvia gratulieren</span></button>
         <span class="cheer-count" id="cheer-count" aria-live="polite"></span>
       </div>
+      <a class="jump" id="jump" href="#wuensche">zur liste <span id="jump-count"></span> ↓</a>
     </header>
 
     <section class="note-box" id="note-box" hidden aria-labelledby="note-title">
@@ -69,11 +70,16 @@
       </form>
     </section>
 
-    <section class="charts" aria-labelledby="list-title">
+    <section class="charts" id="wuensche" aria-labelledby="list-title">
       <div class="charts-head">
         <h2 id="list-title">wünsche</h2>
         <span class="count" id="count"></span>
       </div>
+      <div class="field search">
+        <label for="q">song suchen</label>
+        <input id="q" type="search" placeholder="titel, interpret oder name" enterkeyhint="search">
+      </div>
+      <p class="empty" id="no-hit" hidden>nichts gefunden. vielleicht anders geschrieben?</p>
       <p class="dj-hint" id="dj-hint" hidden>dj-modus: tipp auf „gespielt“, sobald ein lied lief.</p>
       <ol class="list" id="list"></ol>
       <p class="empty" id="empty" hidden>noch leer. trag den ersten song ein.</p>
@@ -289,18 +295,28 @@
       </div>`;
   }
 
+  const fold = (t) => String(t || "").toLowerCase().normalize("NFD").replace(/[\u0300-\u036f]/g, "");
+  function matches(s, q) {
+    return !q || fold(s.title + " " + s.artist + " " + s.name + " " + s.note).includes(q);
+  }
   function render() {
-    const open = songs.filter((s) => !s.played);
-    const done = songs.filter((s) => s.played);
+    const q = fold($("q").value.trim());
+    const openAll = songs.filter((s) => !s.played);
+    const rank = new Map(openAll.map((s, i) => [s.id, i + 1]));
+    const open = openAll.filter((s) => matches(s, q));
+    const done = songs.filter((s) => s.played && matches(s, q));
+    $("jump-count").textContent = openAll.length ? "(" + openAll.length + ")" : "";
+    $("no-hit").hidden = !q || open.length + done.length > 0;
     document.body.classList.toggle("dj", !!djKey);
     $("dj-hint").hidden = !djKey;
-    $("count").textContent = open.length ? String(open.length) : "";
-    $("empty").hidden = open.length > 0;
+    $("count").textContent = openAll.length ? String(openAll.length) : "";
+    $("empty").hidden = openAll.length > 0 || !!q;
     $("empty").textContent = songs.length ? "alles gespielt. respekt!" : "noch leer. trag den ersten song ein.";
-    $("list").innerHTML = open.map((s, i) => {
+    $("list").innerHTML = open.map((s) => {
       const mine = myVotes.has(s.id);
-      return `<li class="row">
-        <div class="place">${i + 1}</div>
+      const r = rank.get(s.id);
+      return `<li class="row" data-rank="${r}">
+        <div class="place">${r}</div>
         ${songBody(s)}
         <button class="vote${mine ? " on" : ""}${popId === s.id ? " pop" : ""}" data-id="${esc(s.id)}" aria-pressed="${mine}"
           aria-label="${s.votes} likes. ${mine ? "like zurücknehmen" : "liken"}">${heart}<span>${s.votes}</span></button>
@@ -359,6 +375,8 @@
       }
     }
   });
+
+  $("q").addEventListener("input", render);
 
   // ---------- Formular ----------
   $("name-input").value = store.get("lied60-name", "");
