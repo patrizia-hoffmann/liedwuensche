@@ -31,7 +31,7 @@ Tipp: In Vercel unter Settings → Domains kannst du die Adresse kürzer machen,
 
 Der DJ meldet sich unten auf der Seite über „dj-login“ an und kann dann Lieder als gespielt markieren. Gespielte Lieder rutschen für alle in „lief schon“.
 
-Das Passwort legst du in Vercel fest: Projekt → Settings → Environment Variables → Name `DJ_PASSWORT`, Wert = dein Passwort → Save. Danach einmal neu veröffentlichen (Deployments → … → Redeploy).
+Das Passwort ist schon eingerichtet. Im Code steht nur seine SHA-256-Prüfsumme (`DJ_PASSWORD_SHA256` in `lib/db.js`), nicht das Passwort selbst. Wer es ändern will, setzt in Vercel die Umgebungsvariable `DJ_PASSWORT`, die hat dann Vorrang.
 
 ## Glückwünsche
 
