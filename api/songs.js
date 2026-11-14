@@ -1,11 +1,9 @@
-import { seedOnce } from "../lib/seed.js";
 import { MAX_SONGS, redis, body, clean, addSong, listAll, pickList, fail } from "../lib/db.js";
 
 export default async function handler(req, res) {
   res.setHeader("Cache-Control", "no-store");
   try {
     if (req.method === "GET") {
-      await seedOnce(redis());
       return res.status(200).json(await listAll());
     }
 
