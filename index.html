@@ -1,0 +1,172 @@
+<!DOCTYPE html>
+<html lang="de">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+  <title>Liedwünsche zum 60.</title>
+  <meta name="theme-color" content="#f7f0e5">
+  <link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>🎵</text></svg>">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Fraunces:ital,opsz,wght@0,9..144,600;0,9..144,700;1,9..144,400&family=Manrope:wght@500;600;700;800&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="/styles.css">
+  <script src="/config.js"></script>
+</head>
+<body>
+  <main class="wrap">
+    <header class="hero">
+      <div class="badge" aria-hidden="true"><span>60</span></div>
+      <h1 id="headline">Wir feiern 60!</h1>
+      <p class="meta" id="meta" hidden></p>
+      <p class="intro" id="intro"></p>
+    </header>
+
+    <section class="card" aria-labelledby="form-title">
+      <h2 id="form-title">Dein Liedwunsch</h2>
+      <form id="wish" autocomplete="off" novalidate>
+        <label for="title">Titel</label>
+        <input id="title" name="title" maxlength="120" required placeholder="z. B. Griechischer Wein" enterkeyhint="next">
+        <label for="artist">Interpret <span class="opt">(wenn du ihn weißt)</span></label>
+        <input id="artist" name="artist" maxlength="120" placeholder="z. B. Udo Jürgens" enterkeyhint="next">
+        <label for="name">Dein Name <span class="opt">(freiwillig)</span></label>
+        <input id="name" name="name" maxlength="60" placeholder="z. B. Tante Rosi" enterkeyhint="next">
+        <label for="note">Gruß oder Widmung <span class="opt">(freiwillig)</span></label>
+        <textarea id="note" name="note" maxlength="200" rows="2" placeholder="z. B. Für unser erstes Tanzlied 1987"></textarea>
+        <div class="hp" aria-hidden="true"><label>Website <input name="website" tabindex="-1"></label></div>
+        <button class="btn full" id="send" type="submit">Wunsch abschicken</button>
+        <p class="msg" id="msg" role="status"></p>
+      </form>
+    </section>
+
+    <section class="card" id="list-card" aria-labelledby="list-title" hidden>
+      <h2 id="list-title">Das wünschen sich die Gäste <small id="count"></small></h2>
+      <ol class="list" id="list"></ol>
+      <p class="empty" id="empty" hidden>Noch keine Wünsche. Du darfst anfangen!</p>
+    </section>
+
+    <p class="foot">Mit einem Tipp auf „Ich auch“ stimmst du für ein Lied. Die beliebtesten Wünsche stehen oben.</p>
+  </main>
+
+<script>
+(() => {
+  const P = Object.assign({ name: "", date: "", place: "", intro: "" }, window.PARTY || {});
+  const $ = (id) => document.getElementById(id);
+
+  // Texte aus config.js
+  if (P.name) {
+    $("headline").textContent = P.name + " wird 60!";
+    document.title = "Liedwünsche für " + P.name + "s 60.";
+  }
+  const meta = [P.date, P.place].filter(Boolean).join(" · ");
+  if (meta) { $("meta").textContent = meta; $("meta").hidden = false; }
+  $("intro").textContent = P.intro;
+
+  // Eigene Stimmen merken (pro Gerät)
+  const STORE = "lied60-votes";
+  let myVotes = new Set();
+  try { myVotes = new Set(JSON.parse(localStorage.getItem(STORE) || "[]")); } catch {}
+  const saveVotes = () => { try { localStorage.setItem(STORE, JSON.stringify([...myVotes])); } catch {} };
+
+  const esc = (s) => String(s ?? "").replace(/[&<>"']/g, (c) => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;", "'": "&#39;" }[c]));
+
+  async function api(path, data) {
+    const res = await fetch(path, data ? {
+      method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify(data)
+    } : { cache: "no-store" });
+    let json = {};
+    try { json = await res.json(); } catch {}
+    if (!res.ok) throw new Error(json.error || "Keine Verbindung. Bitte nochmal versuchen.");
+    return json;
+  }
+
+  function showMsg(text, type) {
+    const m = $("msg");
+    m.textContent = text;
+    m.className = "msg show " + type;
+    clearTimeout(showMsg.t);
+    showMsg.t = setTimeout(() => { m.className = "msg"; }, 6000);
+  }
+
+  // Liste
+  let songs = [];
+  function render() {
+    $("list-card").hidden = false;
+    $("count").textContent = songs.length ? songs.length + (songs.length === 1 ? " Wunsch" : " Wünsche") : "";
+    $("empty").hidden = songs.length > 0;
+    let rank = 0;
+    $("list").innerHTML = songs.map((s) => {
+      const mine = myVotes.has(s.id);
+      return `<li class="item">
+        <div class="rank">${++rank}</div>
+        <div class="song">
+          <div class="t">${esc(s.title)}</div>
+          ${s.artist ? `<div class="a">${esc(s.artist)}</div>` : ""}
+          ${s.note ? `<div class="note">„${esc(s.note)}“</div>` : ""}
+          ${s.name ? `<div class="by">gewünscht von ${esc(s.name)}</div>` : ""}
+          <a class="spot" href="https://open.spotify.com/search/${encodeURIComponent((s.title + " " + s.artist).trim())}" target="_blank" rel="noopener">In Spotify suchen</a>
+        </div>
+        <button class="vote${mine ? " on" : ""}" data-id="${esc(s.id)}"
+          aria-pressed="${mine}" aria-label="${mine ? "Stimme zurücknehmen" : "Ich will das auch hören"}">
+          <span class="n">${s.votes}</span><span class="l">${mine ? "♥ dabei" : "Ich auch"}</span>
+        </button>
+      </li>`;
+    }).join("");
+  }
+
+  async function load() {
+    try { songs = (await api("/api/songs")).songs || []; render(); } catch (e) { /* still beim Nachladen */ }
+  }
+
+  $("list").addEventListener("click", async (ev) => {
+    const btn = ev.target.closest(".vote");
+    if (!btn || btn.disabled) return;
+    const id = btn.dataset.id;
+    const undo = myVotes.has(id);
+    btn.disabled = true;
+    try {
+      const { votes } = await api("/api/vote", { id, undo });
+      undo ? myVotes.delete(id) : myVotes.add(id);
+      saveVotes();
+      const s = songs.find((x) => x.id === id);
+      if (s) s.votes = votes;
+      songs.sort((a, b) => b.votes - a.votes || a.createdAt - b.createdAt);
+      render();
+    } catch (e) {
+      btn.disabled = false;
+      alert(e.message);
+    }
+  });
+
+  // Formular
+  $("wish").addEventListener("submit", async (ev) => {
+    ev.preventDefault();
+    const f = ev.target;
+    const data = Object.fromEntries(new FormData(f).entries());
+    if (!data.title.trim()) { $("title").focus(); showMsg("Bitte gib einen Liedtitel ein.", "err"); return; }
+    $("send").disabled = true;
+    try {
+      const out = await api("/api/songs", data);
+      if (out.id) { myVotes.add(out.id); saveVotes(); }
+      showMsg(out.status === "duplicate"
+        ? "Das hat sich schon jemand gewünscht. Deine Stimme ist dazugezählt!"
+        : "Danke! Dein Wunsch steht auf der Liste.", "ok");
+      const keepName = f.name.value;
+      f.reset();
+      f.name.value = keepName;
+      load();
+    } catch (e) {
+      showMsg(e.message, "err");
+    } finally {
+      $("send").disabled = false;
+    }
+  });
+
+
+  // Start + regelmäßig aktualisieren
+  load();
+  setInterval(() => { if (!document.hidden) load(); }, 20000);
+  document.addEventListener("visibilitychange", () => { if (!document.hidden) load(); });
+})();
+</script>
+</body>
+</html>
