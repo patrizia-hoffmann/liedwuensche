@@ -1,6 +1,6 @@
 # Liedwünsche zu Silvias 60. Geburtstag
 
-Eine Webseite, auf der Gäste per Handy Liedwünsche für den Abend eintragen und mit „Ich auch“ für die Wünsche anderer stimmen. Die beliebtesten Lieder stehen oben. Der DJ öffnet denselben Link, liest die Liste und spielt die Lieder in seinem eigenen Programm. Bei jedem Wunsch gibt es einen kleinen Link „In Spotify suchen“.
+Eine Webseite, auf der Gäste per Handy Liedwünsche für den Abend eintragen und mit einem Herz die Wünsche anderer liken. Die beliebtesten Lieder stehen oben. Der DJ öffnet denselben Link, liest die Liste und spielt die Lieder in seinem eigenen Programm. Bei jedem Wunsch gibt es einen kleinen Link „auf spotify suchen“.
 
 Die Seite läuft kostenlos auf Vercel. Die Wünsche liegen in einer Upstash-Redis-Datenbank, deren kostenloser Tarif für eine Feier reicht.
 
@@ -13,7 +13,7 @@ Die Seite läuft kostenlos auf Vercel. Die Wünsche liegen in einer Upstash-Redi
 | `styles.css` | Aussehen |
 | `api/` | Speichern und Abstimmen |
 | `lib/db.js` | Datenbankanbindung und automatische Löschfrist |
-| `fonts/` | Schriften Shrikhand und Atkinson Hyperlegible (SIL Open Font License), liegen auf dem eigenen Server |
+| `fonts/` | Schrift Bricolage Grotesque (SIL Open Font License), liegt auf dem eigenen Server |
 
 ## Einrichten (ca. 10 Minuten, am besten am Laptop)
 

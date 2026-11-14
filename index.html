@@ -6,69 +6,63 @@
   <title>Liedwünsche zum 60.</title>
   <meta name="robots" content="noindex, nofollow">
   <meta name="referrer" content="no-referrer">
-  <meta name="theme-color" content="#22164a">
-  <link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><circle cx='50' cy='50' r='48' fill='%2315111b'/><circle cx='50' cy='50' r='22' fill='%23f3a73a'/><circle cx='50' cy='50' r='3' fill='%2315111b'/></svg>">
-  <link rel="preload" href="/fonts/shrikhand-latin-400-normal.woff2" as="font" type="font/woff2" crossorigin>
-  <link rel="preload" href="/fonts/atkinson-hyperlegible-latin-700-normal.woff2" as="font" type="font/woff2" crossorigin>
+  <meta name="theme-color" content="#ffffff">
+  <link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><rect width='100' height='100' rx='24' fill='black'/><text x='50' y='68' font-family='Arial' font-weight='700' font-size='52' fill='white' text-anchor='middle'>60</text></svg>">
+  <link rel="preload" href="/fonts/bricolage-grotesque.woff2" as="font" type="font/woff2" crossorigin>
   <link rel="stylesheet" href="/styles.css">
   <script src="/config.js"></script>
 </head>
 <body>
   <main class="wrap">
     <header class="hero">
-      <div class="record">
-        <div class="label">
-          <svg viewBox="0 0 200 200" aria-hidden="true">
-            <defs>
-              <path id="arc-top" d="M 19,100 A 81,81 0 0 1 181,100"/>
-              <path id="arc-bottom" d="M 16,100 A 84,84 0 0 0 184,100"/>
-            </defs>
-            <text><textPath href="#arc-top" startOffset="50%" text-anchor="middle">Wunsch-Hitparade</textPath></text>
-            <text><textPath href="#arc-bottom" startOffset="50%" text-anchor="middle">Seite A · 60 U/min</textPath></text>
-          </svg>
-          <h1><span class="name" id="name">Wir feiern</span><span class="age">wird 60</span></h1>
-        </div>
-      </div>
+      <h1><span id="name">wir</span><span id="age">wird 60.</span></h1>
       <p class="when" id="when" hidden></p>
-      <p class="intro">Welches Lied darf heute Abend nicht fehlen? Trag es ein oder stimm für einen Wunsch, der schon auf der Liste steht. Der DJ schaut den ganzen Abend in diese Liste.</p>
+      <p class="intro">welcher song darf heute nicht fehlen? trag ihn ein oder like einen wunsch, der schon drinsteht.</p>
     </header>
 
-    <section class="panel" aria-labelledby="form-title">
-      <h2 id="form-title">Dein Liedwunsch</h2>
+    <section aria-label="liedwunsch eintragen">
       <form id="wish" autocomplete="off" novalidate>
-        <label for="title">Titel</label>
-        <input id="title" name="title" maxlength="120" required placeholder="z. B. Griechischer Wein" enterkeyhint="next">
-        <label for="artist">Interpret <span class="opt">(wenn du ihn weißt)</span></label>
-        <input id="artist" name="artist" maxlength="120" placeholder="z. B. Udo Jürgens" enterkeyhint="next">
-        <label for="name-input">Dein Name <span class="opt">(freiwillig, für alle sichtbar)</span></label>
-        <input id="name-input" name="name" maxlength="60" placeholder="z. B. Tante Rosi" enterkeyhint="next">
-        <label for="note">Gruß oder Widmung <span class="opt">(freiwillig, für alle sichtbar)</span></label>
-        <textarea id="note" name="note" maxlength="200" rows="2" placeholder="z. B. Für unser erstes Tanzlied 1987"></textarea>
+        <div class="field">
+          <label for="title">song</label>
+          <input id="title" name="title" maxlength="120" required placeholder="griechischer wein" enterkeyhint="next">
+        </div>
+        <div class="field">
+          <label for="artist">von wem? (optional)</label>
+          <input id="artist" name="artist" maxlength="120" placeholder="udo jürgens" enterkeyhint="next">
+        </div>
+        <div class="field">
+          <label for="name-input">dein name (optional, für alle sichtbar)</label>
+          <input id="name-input" name="name" maxlength="60" placeholder="tante rosi" enterkeyhint="next">
+        </div>
+        <div class="field">
+          <label for="note">widmung (optional, für alle sichtbar)</label>
+          <textarea id="note" name="note" maxlength="200" rows="2" placeholder="für unser erstes tanzlied 1987"></textarea>
+        </div>
         <div class="hp" aria-hidden="true"><label>Website <input name="website" tabindex="-1"></label></div>
-        <button class="btn" id="send" type="submit">Wunsch abschicken</button>
+        <button class="btn" id="send" type="submit">wunsch abschicken</button>
         <p class="msg" id="msg" role="status" aria-live="polite"></p>
       </form>
     </section>
 
     <section class="charts" aria-labelledby="list-title">
       <div class="charts-head">
-        <h2 id="list-title">Die Hitparade</h2>
+        <h2 id="list-title">wünsche</h2>
         <span class="count" id="count"></span>
       </div>
       <ol class="list" id="list"></ol>
-      <p class="empty" id="empty" hidden>Noch ist die Hitparade leer. Trag das erste Lied ein.</p>
+      <p class="empty" id="empty" hidden>noch leer. trag den ersten song ein.</p>
     </section>
 
     <footer class="foot">
-      <p>Tipp auf „Ich auch“, um für ein Lied zu stimmen. Nochmal tippen nimmt die Stimme zurück. Die Liste ordnet sich nach Stimmen und aktualisiert sich von selbst.</p>
+      <p>♡ tippen = like. nochmal tippen nimmt ihn zurück. die meistgelikten songs stehen oben, der dj schaut hier rein.</p>
       <details>
-        <summary>Datenschutz</summary>
+        <summary>datenschutz</summary>
         <p id="who"></p>
         <p>Gespeichert werden nur der Liedtitel, der Interpret und, wenn du sie einträgst, dein Name und deine Widmung. Alles davon sehen alle, die diesen Link haben. Die Seite setzt keine Cookies, nutzt kein Tracking und lädt keine Inhalte von fremden Servern (auch keine Schriften).</p>
         <p>Die Seite liegt bei Vercel, die Wünsche in einer Datenbank von Upstash. Beim Aufruf verarbeitet Vercel technisch nötige Verbindungsdaten wie die IP-Adresse in Server-Protokollen. Die Seite selbst speichert keine IP-Adressen.</p>
-        <p>Damit du nicht aus Versehen doppelt stimmst, merkt sich dein Browser auf deinem Gerät, für welche Lieder du gestimmt hast. Diese Angabe verlässt dein Gerät nicht.</p>
+        <p>Damit du nicht aus Versehen doppelt likest, merkt sich dein Browser auf deinem Gerät, welche Songs du gelikt hast. Diese Angabe verlässt dein Gerät nicht.</p>
         <p>Die ganze Liste wird 30 Tage nach dem letzten Eintrag automatisch gelöscht. Soll dein Eintrag früher verschwinden, sag einfach Bescheid.</p>
-        <p>Die Links „In Spotify suchen“ öffnen Spotify erst, wenn du draufklickst. Ab dann gelten die Datenschutzregeln von Spotify.</p>
+        <p>Die Links „auf spotify suchen“ öffnen Spotify erst, wenn du draufklickst. Ab dann gelten die Datenschutzregeln von Spotify.</p>
       </details>
     </footer>
   </main>
@@ -80,10 +74,10 @@
 
   // Texte aus config.js
   if (P.name) {
-    $("name").textContent = P.name;
-    document.title = "Liedwünsche für " + P.name + "s 60.";
+    $("name").textContent = P.name.toLowerCase();
+    document.title = P.name.toLowerCase() + " wird 60 · songwünsche";
   } else {
-    document.querySelector("h1 .age").textContent = "60 Jahre";
+    $("age").textContent = "feiern 60.";
   }
   if (P.date || P.place) {
     [P.date, P.place].filter(Boolean).forEach((t) => {
@@ -118,32 +112,33 @@
   function showMsg(text, type) {
     const m = $("msg");
     m.textContent = text;
-    m.className = "msg show " + type;
+    m.className = "msg " + type;
     clearTimeout(showMsg.t);
-    showMsg.t = setTimeout(() => { m.className = "msg"; }, 6000);
+    showMsg.t = setTimeout(() => { m.textContent = ""; }, 6000);
   }
 
   // Liste
   let songs = [];
   let popId = null;
   function render() {
-    $("count").textContent = songs.length ? songs.length + (songs.length === 1 ? " Wunsch" : " Wünsche") : "";
+    $("count").textContent = songs.length ? String(songs.length) : "";
     $("empty").hidden = songs.length > 0;
     $("list").innerHTML = songs.map((s, i) => {
       const mine = myVotes.has(s.id);
       const q = encodeURIComponent((s.title + " " + s.artist).trim());
-      return `<li class="strip">
-        <div class="place" aria-label="Platz ${i + 1}">${i + 1}</div>
+      return `<li class="row">
+        <div class="place">${i + 1}</div>
         <div class="song">
           <div class="t">${esc(s.title)}</div>
           ${s.artist ? `<div class="a">${esc(s.artist)}</div>` : ""}
           ${s.note ? `<div class="note">„${esc(s.note)}“</div>` : ""}
-          ${s.name ? `<div class="by">gewünscht von ${esc(s.name)}</div>` : ""}
-          <a class="spot" href="https://open.spotify.com/search/${q}" target="_blank" rel="noopener noreferrer">In Spotify suchen</a>
+          ${s.name ? `<div class="by">von ${esc(s.name)}</div>` : ""}
+          <a class="spot" href="https://open.spotify.com/search/${q}" target="_blank" rel="noopener noreferrer">auf spotify suchen</a>
         </div>
         <button class="vote${mine ? " on" : ""}${popId === s.id ? " pop" : ""}" data-id="${esc(s.id)}" aria-pressed="${mine}"
-          aria-label="${s.votes} Stimmen. ${mine ? "Stimme zurücknehmen" : "Ich will das auch hören"}">
-          <span class="n">${s.votes}</span><span class="l">${mine ? "dabei" : "Ich auch"}</span>
+          aria-label="${s.votes} likes. ${mine ? "like zurücknehmen" : "liken"}">
+          <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 20.5s-7.5-4.6-9.3-9.2C1.6 8.4 3.3 5 6.6 4.6c2.1-.3 3.8.8 5.4 2.7 1.6-1.9 3.3-3 5.4-2.7 3.3.4 5 3.8 3.9 6.7-1.8 4.6-9.3 9.2-9.3 9.2z" stroke-linejoin="round"/></svg>
+          <span>${s.votes}</span>
         </button>
       </li>`;
     }).join("");
@@ -180,14 +175,14 @@
     ev.preventDefault();
     const f = ev.target;
     const data = Object.fromEntries(new FormData(f).entries());
-    if (!data.title.trim()) { $("title").focus(); showMsg("Bitte gib einen Liedtitel ein.", "err"); return; }
+    if (!data.title.trim()) { $("title").focus(); showMsg("welcher song? das feld oben fehlt noch.", "err"); return; }
     $("send").disabled = true;
     try {
       const out = await api("/api/songs", data);
       if (out.id) { myVotes.add(out.id); saveVotes(); }
       showMsg(out.status === "duplicate"
-        ? "Das hat sich schon jemand gewünscht. Deine Stimme ist dazugezählt."
-        : "Danke! Dein Wunsch steht in der Hitparade.", "ok");
+        ? "gibt's schon, dein like ist dazugezählt ♥"
+        : "drin! danke ♥", "ok");
       const keepName = $("name-input").value;
       f.reset();
       $("name-input").value = keepName; // Name für den nächsten Wunsch stehen lassen
