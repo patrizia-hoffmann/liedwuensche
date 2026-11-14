@@ -1,10 +1,10 @@
-import { K, MAX_SONGS, redis, body, clean, addSong, listSongs, fail } from "../lib/db.js";
+import { K, MAX_SONGS, redis, body, clean, addSong, listAll, fail } from "../lib/db.js";
 
 export default async function handler(req, res) {
   res.setHeader("Cache-Control", "no-store");
   try {
     if (req.method === "GET") {
-      return res.status(200).json({ songs: await listSongs() });
+      return res.status(200).json(await listAll());
     }
 
     if (req.method === "POST") {

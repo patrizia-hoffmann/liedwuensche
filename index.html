@@ -13,12 +13,37 @@
   <script src="/config.js"></script>
 </head>
 <body>
+  <canvas id="confetti" aria-hidden="true"></canvas>
   <main class="wrap">
     <header class="hero">
       <h1><span id="name">silvia</span><span id="age">wird 60.</span></h1>
       <p class="when" id="when" hidden></p>
       <p class="intro">welcher song darf heute nicht fehlen? trag ihn ein oder like einen wunsch, der schon drinsteht.</p>
+      <div class="cheer-row">
+        <button class="cheer" id="cheer" type="button"><span aria-hidden="true">🎉</span> <span id="cheer-label">silvia gratulieren</span></button>
+        <span class="cheer-count" id="cheer-count" aria-live="polite"></span>
+      </div>
     </header>
+
+    <section class="note-box" id="note-box" hidden aria-labelledby="note-title">
+      <h2 id="note-title">magst du silvia noch was schreiben?</h2>
+      <form id="note-form" autocomplete="off" novalidate>
+        <div class="field">
+          <label for="note-text">dein glückwunsch</label>
+          <textarea id="note-text" name="text" maxlength="280" rows="3" placeholder="alles liebe zum 60.!"></textarea>
+        </div>
+        <div class="field">
+          <label for="note-name">dein name (optional, für alle sichtbar)</label>
+          <input id="note-name" name="name" maxlength="60" placeholder="tante rosi">
+        </div>
+        <div class="hp" aria-hidden="true"><label>Website <input name="website" tabindex="-1"></label></div>
+        <div class="note-actions">
+          <button class="btn" id="note-send" type="submit">senden</button>
+          <button class="btn ghost" id="note-skip" type="button">später</button>
+        </div>
+        <p class="msg" id="note-msg" role="status" aria-live="polite"></p>
+      </form>
+    </section>
 
     <section aria-label="liedwunsch eintragen">
       <form id="wish" autocomplete="off" novalidate>
@@ -49,8 +74,22 @@
         <h2 id="list-title">wünsche</h2>
         <span class="count" id="count"></span>
       </div>
+      <p class="dj-hint" id="dj-hint" hidden>dj-modus: tipp auf „gespielt“, sobald ein lied lief.</p>
       <ol class="list" id="list"></ol>
       <p class="empty" id="empty" hidden>noch leer. trag den ersten song ein.</p>
+
+      <div id="played-box" hidden>
+        <h3 class="sub-head">lief schon</h3>
+        <ul class="list played" id="played-list"></ul>
+      </div>
+    </section>
+
+    <section class="charts" id="notes-box" hidden aria-labelledby="notes-title">
+      <div class="charts-head">
+        <h2 id="notes-title">glückwünsche</h2>
+        <span class="count lilac" id="notes-count"></span>
+      </div>
+      <ul class="notes" id="notes"></ul>
     </section>
 
     <footer class="foot">
@@ -58,12 +97,23 @@
       <details>
         <summary>datenschutz</summary>
         <p id="who"></p>
-        <p>Gespeichert werden nur der Liedtitel, der Interpret und, wenn du sie einträgst, dein Name und deine Widmung. Alles davon sehen alle, die diesen Link haben. Die Seite setzt keine Cookies, nutzt kein Tracking und lädt keine Inhalte von fremden Servern (auch keine Schriften).</p>
-        <p>Die Seite liegt bei Vercel, die Wünsche in einer Datenbank von Upstash. Beim Aufruf verarbeitet Vercel technisch nötige Verbindungsdaten wie die IP-Adresse in Server-Protokollen. Die Seite selbst speichert keine IP-Adressen.</p>
-        <p>Damit du nicht aus Versehen doppelt likest, merkt sich dein Browser auf deinem Gerät, welche Songs du gelikt hast. Diese Angabe verlässt dein Gerät nicht.</p>
-        <p>Die ganze Liste wird 30 Tage nach dem letzten Eintrag automatisch gelöscht. Soll dein Eintrag früher verschwinden, sag einfach Bescheid.</p>
+        <p>Gespeichert werden nur der Liedtitel, der Interpret, Glückwünsche und, wenn du sie einträgst, dein Name und deine Widmung. Alles davon sehen alle, die diesen Link haben. Die Seite setzt keine Cookies, nutzt kein Tracking und lädt keine Inhalte von fremden Servern (auch keine Schriften).</p>
+        <p>Die Seite liegt bei Vercel, die Wünsche in einer Datenbank von Upstash in Frankfurt. Beim Aufruf verarbeitet Vercel technisch nötige Verbindungsdaten wie die IP-Adresse in Server-Protokollen. Die Seite selbst speichert keine IP-Adressen.</p>
+        <p>Damit du nicht aus Versehen doppelt likest oder gratulierst, merkt sich dein Browser auf deinem Gerät, was du schon angetippt hast. Diese Angabe verlässt dein Gerät nicht.</p>
+        <p>Alles wird 30 Tage nach dem letzten Eintrag automatisch gelöscht. Soll dein Eintrag früher verschwinden, sag einfach Bescheid.</p>
         <p>Die Links „auf spotify suchen“ öffnen Spotify erst, wenn du draufklickst. Ab dann gelten die Datenschutzregeln von Spotify.</p>
       </details>
+      <div class="dj-login">
+        <button class="linkish" id="dj-open" type="button">dj-login</button>
+        <form id="dj-form" hidden>
+          <div class="field">
+            <label for="dj-key">dj-passwort</label>
+            <input id="dj-key" type="password" autocomplete="current-password">
+          </div>
+          <button class="btn small" type="submit">anmelden</button>
+          <p class="msg" id="dj-msg" role="status" aria-live="polite"></p>
+        </form>
+      </div>
     </footer>
   </main>
 
@@ -71,13 +121,18 @@
 (() => {
   const P = Object.assign({ name: "", date: "", place: "", responsible: "" }, window.PARTY || {});
   const $ = (id) => document.getElementById(id);
+  const NAME = (P.name || "").toLowerCase();
 
-  // Texte aus config.js
-  if (P.name) {
-    $("name").textContent = P.name.toLowerCase();
-    document.title = P.name.toLowerCase() + " wird 60 · songwünsche";
+  // ---------- Texte aus config.js ----------
+  if (NAME) {
+    $("name").textContent = NAME;
+    document.title = NAME + " wird 60 · songwünsche";
+    $("cheer-label").textContent = NAME + " gratulieren";
+    $("note-title").textContent = "magst du " + NAME + " noch was schreiben?";
   } else {
     $("age").textContent = "feiern 60.";
+    $("cheer-label").textContent = "gratulieren";
+    $("note-title").textContent = "magst du noch was schreiben?";
   }
   if (P.date || P.place) {
     [P.date, P.place].filter(Boolean).forEach((t) => {
@@ -91,11 +146,16 @@
     ? "Diese Seite ist ein privates Angebot für " + (P.name ? P.name + "s" : "die") + " Geburtstagsfeier. Verantwortlich: " + P.responsible + "."
     : "Diese Seite ist ein privates Angebot für " + (P.name ? P.name + "s" : "die") + " Geburtstagsfeier und wird von den Gastgebern betrieben.";
 
-  // Eigene Stimmen merken (nur auf diesem Gerät)
-  const STORE = "lied60-votes";
-  let myVotes = new Set();
-  try { myVotes = new Set(JSON.parse(localStorage.getItem(STORE) || "[]")); } catch {}
-  const saveVotes = () => { try { localStorage.setItem(STORE, JSON.stringify([...myVotes])); } catch {} };
+  // ---------- Kleiner Speicher auf dem Gerät ----------
+  const store = {
+    get(k, fallback) { try { const v = localStorage.getItem(k); return v === null ? fallback : JSON.parse(v); } catch { return fallback; } },
+    set(k, v) { try { localStorage.setItem(k, JSON.stringify(v)); } catch {} },
+    del(k) { try { localStorage.removeItem(k); } catch {} },
+  };
+  let myVotes = new Set(store.get("lied60-votes", []));
+  const saveVotes = () => store.set("lied60-votes", [...myVotes]);
+  let cheered = store.get("lied60-cheered", false);
+  let djKey = store.get("lied60-dj", "");
 
   const esc = (s) => String(s ?? "").replace(/[&<>"']/g, (c) => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;", "'": "&#39;" }[c]));
 
@@ -105,94 +165,247 @@
     } : { cache: "no-store" });
     let json = {};
     try { json = await res.json(); } catch {}
-    if (!res.ok) throw new Error(json.error || "Keine Verbindung. Bitte nochmal versuchen.");
+    if (!res.ok) { const e = new Error(json.error || "Keine Verbindung. Bitte nochmal versuchen."); e.status = res.status; throw e; }
     return json;
   }
 
-  function showMsg(text, type) {
-    const m = $("msg");
-    m.textContent = text;
-    m.className = "msg " + type;
-    clearTimeout(showMsg.t);
-    showMsg.t = setTimeout(() => { m.textContent = ""; }, 6000);
+  function flash(el, text, type) {
+    el.textContent = text;
+    el.className = "msg " + type;
+    clearTimeout(el._t);
+    el._t = setTimeout(() => { el.textContent = ""; }, 6000);
   }
 
-  // Liste
+  // ---------- Konfetti ----------
+  const canvas = $("confetti");
+  const ctx = canvas.getContext("2d");
+  const reduceMotion = window.matchMedia("(prefers-reduced-motion: reduce)").matches;
+  const COLORS = ["#1844b9", "#c5b3ea", "#ed7761", "#22664d", "#e7d4bb"];
+  let bits = [], running = false;
+  function confetti(fromEl) {
+    if (reduceMotion) return;
+    const dpr = window.devicePixelRatio || 1;
+    canvas.width = innerWidth * dpr; canvas.height = innerHeight * dpr;
+    ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
+    const r = fromEl.getBoundingClientRect();
+    const x0 = r.left + r.width / 2, y0 = r.top + r.height / 2;
+    for (let i = 0; i < 140; i++) {
+      const a = -Math.PI / 2 + (Math.random() - .5) * Math.PI * 1.1;
+      const v = 6 + Math.random() * 9;
+      bits.push({
+        x: x0, y: y0, vx: Math.cos(a) * v, vy: Math.sin(a) * v,
+        w: 6 + Math.random() * 6, h: 4 + Math.random() * 8,
+        rot: Math.random() * Math.PI, vr: (Math.random() - .5) * .4,
+        c: COLORS[i % COLORS.length], life: 0, round: Math.random() < .3,
+      });
+    }
+    if (!running) { running = true; requestAnimationFrame(tick); }
+  }
+  function tick() {
+    ctx.clearRect(0, 0, innerWidth, innerHeight);
+    bits = bits.filter((b) => b.life < 170 && b.y < innerHeight + 40);
+    for (const b of bits) {
+      b.life++; b.vy += .28; b.vx *= .985; b.vy *= .985;
+      b.x += b.vx; b.y += b.vy; b.rot += b.vr;
+      ctx.save();
+      ctx.globalAlpha = Math.min(1, (170 - b.life) / 40);
+      ctx.translate(b.x, b.y); ctx.rotate(b.rot);
+      ctx.fillStyle = b.c;
+      if (b.round) { ctx.beginPath(); ctx.arc(0, 0, b.w / 2, 0, Math.PI * 2); ctx.fill(); }
+      else ctx.fillRect(-b.w / 2, -b.h / 2, b.w, b.h * Math.abs(Math.cos(b.rot * 2)) + 1);
+      ctx.restore();
+    }
+    if (bits.length) requestAnimationFrame(tick);
+    else { running = false; ctx.clearRect(0, 0, innerWidth, innerHeight); }
+  }
+
+  // ---------- Glückwünsche ----------
+  let cheers = { count: 0, notes: [] };
+  function renderCheers() {
+    const n = cheers.count;
+    $("cheer-count").textContent = n ? n + (n === 1 ? " glückwunsch" : " glückwünsche") : "sei die erste person";
+    $("cheer").classList.toggle("done", cheered);
+    if (cheered) $("cheer-label").textContent = "nochmal konfetti";
+    $("notes-box").hidden = cheers.notes.length === 0;
+    $("notes-count").textContent = cheers.notes.length || "";
+    $("notes").innerHTML = cheers.notes.map((n) => `<li>
+        <p>${esc(n.text)}</p>
+        ${n.name ? `<span>von ${esc(n.name)}</span>` : ""}
+      </li>`).join("");
+  }
+
+  $("cheer").addEventListener("click", async () => {
+    const btn = $("cheer");
+    confetti(btn);
+    btn.classList.remove("bump"); void btn.offsetWidth; btn.classList.add("bump");
+    if (cheered) return;
+    try {
+      const { count } = await api("/api/cheers", { kind: "cheer" });
+      cheered = true; store.set("lied60-cheered", true);
+      cheers.count = count;
+      renderCheers();
+      $("note-name").value = $("note-name").value || $("name-input").value || store.get("lied60-name", "");
+      $("note-box").hidden = false;
+      $("note-box").scrollIntoView({ behavior: reduceMotion ? "auto" : "smooth", block: "nearest" });
+    } catch (e) { alert(e.message); }
+  });
+
+  $("note-skip").addEventListener("click", () => { $("note-box").hidden = true; });
+
+  $("note-form").addEventListener("submit", async (ev) => {
+    ev.preventDefault();
+    const data = Object.fromEntries(new FormData(ev.target).entries());
+    if (!data.text.trim()) { $("note-text").focus(); flash($("note-msg"), "schreib ein paar worte.", "err"); return; }
+    $("note-send").disabled = true;
+    try {
+      await api("/api/cheers", { kind: "note", ...data });
+      if (data.name) store.set("lied60-name", data.name);
+      confetti($("note-send"));
+      ev.target.reset();
+      $("note-box").hidden = true;
+      await load();
+      $("notes-box").scrollIntoView({ behavior: reduceMotion ? "auto" : "smooth", block: "start" });
+    } catch (e) {
+      flash($("note-msg"), e.message, "err");
+    } finally {
+      $("note-send").disabled = false;
+    }
+  });
+
+  // ---------- Liste ----------
+  const heart = '<svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 20.5s-7.5-4.6-9.3-9.2C1.6 8.4 3.3 5 6.6 4.6c2.1-.3 3.8.8 5.4 2.7 1.6-1.9 3.3-3 5.4-2.7 3.3.4 5 3.8 3.9 6.7-1.8 4.6-9.3 9.2-9.3 9.2z" stroke-linejoin="round"/></svg>';
   let songs = [];
   let popId = null;
+
+  function songBody(s) {
+    const q = encodeURIComponent((s.title + " " + s.artist).trim());
+    return `<div class="song">
+        <div class="t">${esc(s.title)}</div>
+        ${s.artist ? `<div class="a">${esc(s.artist)}</div>` : ""}
+        ${s.note ? `<div class="note">„${esc(s.note)}“</div>` : ""}
+        ${s.name ? `<div class="by">von ${esc(s.name)}</div>` : ""}
+        <a class="spot" href="https://open.spotify.com/search/${q}" target="_blank" rel="noopener noreferrer">auf spotify suchen</a>
+        ${djKey ? `<button class="dj-btn" data-act="${s.played ? "unplay" : "play"}" data-id="${esc(s.id)}" type="button">${s.played ? "doch nicht gespielt" : "✓ gespielt"}</button>` : ""}
+      </div>`;
+  }
+
   function render() {
-    $("count").textContent = songs.length ? String(songs.length) : "";
-    $("empty").hidden = songs.length > 0;
-    $("list").innerHTML = songs.map((s, i) => {
+    const open = songs.filter((s) => !s.played);
+    const done = songs.filter((s) => s.played);
+    document.body.classList.toggle("dj", !!djKey);
+    $("dj-hint").hidden = !djKey;
+    $("count").textContent = open.length ? String(open.length) : "";
+    $("empty").hidden = open.length > 0;
+    $("empty").textContent = songs.length ? "alles gespielt. respekt!" : "noch leer. trag den ersten song ein.";
+    $("list").innerHTML = open.map((s, i) => {
       const mine = myVotes.has(s.id);
-      const q = encodeURIComponent((s.title + " " + s.artist).trim());
       return `<li class="row">
         <div class="place">${i + 1}</div>
-        <div class="song">
-          <div class="t">${esc(s.title)}</div>
-          ${s.artist ? `<div class="a">${esc(s.artist)}</div>` : ""}
-          ${s.note ? `<div class="note">„${esc(s.note)}“</div>` : ""}
-          ${s.name ? `<div class="by">von ${esc(s.name)}</div>` : ""}
-          <a class="spot" href="https://open.spotify.com/search/${q}" target="_blank" rel="noopener noreferrer">auf spotify suchen</a>
-        </div>
+        ${songBody(s)}
         <button class="vote${mine ? " on" : ""}${popId === s.id ? " pop" : ""}" data-id="${esc(s.id)}" aria-pressed="${mine}"
-          aria-label="${s.votes} likes. ${mine ? "like zurücknehmen" : "liken"}">
-          <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 20.5s-7.5-4.6-9.3-9.2C1.6 8.4 3.3 5 6.6 4.6c2.1-.3 3.8.8 5.4 2.7 1.6-1.9 3.3-3 5.4-2.7 3.3.4 5 3.8 3.9 6.7-1.8 4.6-9.3 9.2-9.3 9.2z" stroke-linejoin="round"/></svg>
-          <span>${s.votes}</span>
-        </button>
+          aria-label="${s.votes} likes. ${mine ? "like zurücknehmen" : "liken"}">${heart}<span>${s.votes}</span></button>
       </li>`;
     }).join("");
+    $("played-box").hidden = done.length === 0;
+    $("played-list").innerHTML = done.map((s) => `<li class="row">
+        <div class="place">✓</div>
+        ${songBody(s)}
+        <span class="vote static" aria-label="${s.votes} likes">${heart}<span>${s.votes}</span></span>
+      </li>`).join("");
     popId = null;
   }
 
   async function load() {
-    try { songs = (await api("/api/songs")).songs || []; render(); } catch { /* still beim Nachladen */ }
+    try {
+      const data = await api("/api/songs");
+      songs = data.songs || [];
+      cheers = data.cheers || cheers;
+      render();
+      renderCheers();
+    } catch { /* still beim Nachladen */ }
   }
 
-  $("list").addEventListener("click", async (ev) => {
-    const btn = ev.target.closest(".vote");
-    if (!btn || btn.disabled) return;
-    const id = btn.dataset.id;
-    const undo = myVotes.has(id);
-    btn.disabled = true;
-    try {
-      const { votes } = await api("/api/vote", { id, undo });
-      undo ? myVotes.delete(id) : myVotes.add(id);
-      saveVotes();
-      const s = songs.find((x) => x.id === id);
-      if (s) s.votes = votes;
-      songs.sort((a, b) => b.votes - a.votes || a.createdAt - b.createdAt);
-      if (!undo) popId = id;
-      render();
-    } catch (e) {
-      btn.disabled = false;
-      alert(e.message);
+  document.querySelector(".charts").addEventListener("click", async (ev) => {
+    const vote = ev.target.closest("button.vote");
+    const dj = ev.target.closest(".dj-btn");
+    if (vote && !vote.disabled) {
+      const id = vote.dataset.id;
+      const undo = myVotes.has(id);
+      vote.disabled = true;
+      try {
+        const { votes } = await api("/api/vote", { id, undo });
+        undo ? myVotes.delete(id) : myVotes.add(id);
+        saveVotes();
+        const s = songs.find((x) => x.id === id);
+        if (s) s.votes = votes;
+        songs.sort((a, b) => b.votes - a.votes || a.createdAt - b.createdAt);
+        if (!undo) popId = id;
+        render();
+      } catch (e) { vote.disabled = false; alert(e.message); }
+    }
+    if (dj && !dj.disabled) {
+      const id = dj.dataset.id;
+      const played = dj.dataset.act === "play";
+      dj.disabled = true;
+      try {
+        await api("/api/played", { key: djKey, id, played });
+        const s = songs.find((x) => x.id === id);
+        if (s) s.played = played;
+        render();
+      } catch (e) {
+        dj.disabled = false;
+        if (e.status === 401) { djKey = ""; store.del("lied60-dj"); render(); }
+        alert(e.message);
+      }
     }
   });
 
-  // Formular
+  // ---------- Formular ----------
+  $("name-input").value = store.get("lied60-name", "");
   $("wish").addEventListener("submit", async (ev) => {
     ev.preventDefault();
     const f = ev.target;
     const data = Object.fromEntries(new FormData(f).entries());
-    if (!data.title.trim()) { $("title").focus(); showMsg("welcher song? das feld oben fehlt noch.", "err"); return; }
+    if (!data.title.trim()) { $("title").focus(); flash($("msg"), "welcher song? das feld oben fehlt noch.", "err"); return; }
     $("send").disabled = true;
     try {
       const out = await api("/api/songs", data);
       if (out.id) { myVotes.add(out.id); saveVotes(); }
-      showMsg(out.status === "duplicate"
-        ? "gibt's schon, dein like ist dazugezählt ♥"
-        : "drin! danke ♥", "ok");
+      if (data.name) store.set("lied60-name", data.name);
+      flash($("msg"), out.status === "duplicate" ? "gibt's schon, dein like ist dazugezählt ♥" : "drin! danke ♥", "ok");
       const keepName = $("name-input").value;
       f.reset();
       $("name-input").value = keepName; // Name für den nächsten Wunsch stehen lassen
       load();
     } catch (e) {
-      showMsg(e.message, "err");
+      flash($("msg"), e.message, "err");
     } finally {
       $("send").disabled = false;
     }
   });
+
+  // ---------- DJ-Login ----------
+  function renderDj() {
+    $("dj-open").textContent = djKey ? "dj-logout" : "dj-login";
+    $("dj-form").hidden = true;
+  }
+  $("dj-open").addEventListener("click", () => {
+    if (djKey) { djKey = ""; store.del("lied60-dj"); renderDj(); render(); return; }
+    $("dj-form").hidden = !$("dj-form").hidden;
+    if (!$("dj-form").hidden) $("dj-key").focus();
+  });
+  $("dj-form").addEventListener("submit", async (ev) => {
+    ev.preventDefault();
+    const key = $("dj-key").value;
+    try {
+      await api("/api/played", { key, check: true });
+      djKey = key; store.set("lied60-dj", key);
+      $("dj-key").value = "";
+      renderDj(); render();
+      document.querySelector(".charts").scrollIntoView({ behavior: reduceMotion ? "auto" : "smooth" });
+    } catch (e) { flash($("dj-msg"), e.message, "err"); }
+  });
+  renderDj();
 
   load();
   setInterval(() => { if (!document.hidden) load(); }, 20000);
