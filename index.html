@@ -13,37 +13,13 @@
   <script src="/config.js"></script>
 </head>
 <body>
-  <canvas id="confetti" aria-hidden="true"></canvas>
   <main class="wrap">
     <header class="hero">
       <h1><span id="name">silvia</span><span id="age">wird 60.</span></h1>
       <p class="when" id="when" hidden></p>
       <p class="intro">welcher song darf heute nicht fehlen? trag ihn ein oder like einen wunsch, der schon drinsteht.</p>
-      <div class="cheer-row">
-        <button class="cheer" id="cheer" type="button"><span aria-hidden="true">🎉</span> <span id="cheer-label">silvia gratulieren</span></button>
-        <span class="cheer-count" id="cheer-count" aria-live="polite"></span>
-      </div>
     </header>
 
-    <section class="note-box" id="note-box" hidden aria-labelledby="note-title">
-      <h2 id="note-title">magst du silvia noch was schreiben?</h2>
-      <form id="note-form" autocomplete="off" novalidate>
-        <div class="field">
-          <label for="note-text">dein glückwunsch</label>
-          <textarea id="note-text" name="text" maxlength="280" rows="3" placeholder="alles liebe zum 60.!"></textarea>
-        </div>
-        <div class="field">
-          <label for="note-name">dein name (optional, für alle sichtbar)</label>
-          <input id="note-name" name="name" maxlength="60" placeholder="tante rosi">
-        </div>
-        <div class="hp" aria-hidden="true"><label>Website <input name="website" tabindex="-1"></label></div>
-        <div class="note-actions">
-          <button class="btn" id="note-send" type="submit">senden</button>
-          <button class="btn ghost" id="note-skip" type="button">später</button>
-        </div>
-        <p class="msg" id="note-msg" role="status" aria-live="polite"></p>
-      </form>
-    </section>
 
     <section aria-label="liedwunsch eintragen">
       <form id="wish" autocomplete="off" novalidate>
@@ -84,22 +60,15 @@
       </div>
     </section>
 
-    <section class="charts" id="notes-box" hidden aria-labelledby="notes-title">
-      <div class="charts-head">
-        <h2 id="notes-title">glückwünsche</h2>
-        <span class="count lilac" id="notes-count"></span>
-      </div>
-      <ul class="notes" id="notes"></ul>
-    </section>
 
     <footer class="foot">
       <p>♡ tippen = like. nochmal tippen nimmt ihn zurück. die meistgelikten songs stehen oben, der dj schaut hier rein.</p>
       <details>
         <summary>datenschutz</summary>
         <p id="who"></p>
-        <p>Gespeichert werden nur der Liedtitel, der Interpret, Glückwünsche und, wenn du sie einträgst, dein Name und deine Widmung. Alles davon sehen alle, die diesen Link haben. Die Seite setzt keine Cookies, nutzt kein Tracking und lädt keine Inhalte von fremden Servern (auch keine Schriften).</p>
+        <p>Gespeichert werden nur der Liedtitel, der Interpret und, wenn du sie einträgst, dein Name und deine Widmung. Alles davon sehen alle, die diesen Link haben. Die Seite setzt keine Cookies, nutzt kein Tracking und lädt keine Inhalte von fremden Servern (auch keine Schriften).</p>
         <p>Die Seite liegt bei Vercel, die Wünsche in einer Datenbank von Upstash in Frankfurt. Beim Aufruf verarbeitet Vercel technisch nötige Verbindungsdaten wie die IP-Adresse in Server-Protokollen. Die Seite selbst speichert keine IP-Adressen.</p>
-        <p>Damit du nicht aus Versehen doppelt likest oder gratulierst, merkt sich dein Browser auf deinem Gerät, was du schon angetippt hast. Diese Angabe verlässt dein Gerät nicht.</p>
+        <p>Damit du nicht aus Versehen doppelt likest, merkt sich dein Browser auf deinem Gerät, welche Songs du gelikt hast. Diese Angabe verlässt dein Gerät nicht.</p>
         <p>Alles wird 30 Tage nach dem letzten Eintrag automatisch gelöscht. Soll dein Eintrag früher verschwinden, sag einfach Bescheid.</p>
         <p>Die Links „auf spotify suchen“ öffnen Spotify erst, wenn du draufklickst. Ab dann gelten die Datenschutzregeln von Spotify.</p>
       </details>
@@ -127,12 +96,8 @@
   if (NAME) {
     $("name").textContent = NAME;
     document.title = NAME + " wird 60 · songwünsche";
-    $("cheer-label").textContent = NAME + " gratulieren";
-    $("note-title").textContent = "magst du " + NAME + " noch was schreiben?";
   } else {
     $("age").textContent = "feiern 60.";
-    $("cheer-label").textContent = "gratulieren";
-    $("note-title").textContent = "magst du noch was schreiben?";
   }
   if (P.date || P.place) {
     [P.date, P.place].filter(Boolean).forEach((t) => {
@@ -154,7 +119,6 @@
   };
   let myVotes = new Set(store.get("lied60-votes", []));
   const saveVotes = () => store.set("lied60-votes", [...myVotes]);
-  let cheered = store.get("lied60-cheered", false);
   let djKey = store.get("lied60-dj", "");
 
   const esc = (s) => String(s ?? "").replace(/[&<>"']/g, (c) => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;", "'": "&#39;" }[c]));
@@ -175,102 +139,6 @@
     clearTimeout(el._t);
     el._t = setTimeout(() => { el.textContent = ""; }, 6000);
   }
-
-  // ---------- Konfetti ----------
-  const canvas = $("confetti");
-  const ctx = canvas.getContext("2d");
-  const reduceMotion = window.matchMedia("(prefers-reduced-motion: reduce)").matches;
-  const COLORS = ["#1844b9", "#c5b3ea", "#ed7761", "#22664d", "#e7d4bb"];
-  let bits = [], running = false;
-  function confetti(fromEl) {
-    if (reduceMotion) return;
-    const dpr = window.devicePixelRatio || 1;
-    canvas.width = innerWidth * dpr; canvas.height = innerHeight * dpr;
-    ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
-    const r = fromEl.getBoundingClientRect();
-    const x0 = r.left + r.width / 2, y0 = r.top + r.height / 2;
-    for (let i = 0; i < 140; i++) {
-      const a = -Math.PI / 2 + (Math.random() - .5) * Math.PI * 1.1;
-      const v = 6 + Math.random() * 9;
-      bits.push({
-        x: x0, y: y0, vx: Math.cos(a) * v, vy: Math.sin(a) * v,
-        w: 6 + Math.random() * 6, h: 4 + Math.random() * 8,
-        rot: Math.random() * Math.PI, vr: (Math.random() - .5) * .4,
-        c: COLORS[i % COLORS.length], life: 0, round: Math.random() < .3,
-      });
-    }
-    if (!running) { running = true; requestAnimationFrame(tick); }
-  }
-  function tick() {
-    ctx.clearRect(0, 0, innerWidth, innerHeight);
-    bits = bits.filter((b) => b.life < 170 && b.y < innerHeight + 40);
-    for (const b of bits) {
-      b.life++; b.vy += .28; b.vx *= .985; b.vy *= .985;
-      b.x += b.vx; b.y += b.vy; b.rot += b.vr;
-      ctx.save();
-      ctx.globalAlpha = Math.min(1, (170 - b.life) / 40);
-      ctx.translate(b.x, b.y); ctx.rotate(b.rot);
-      ctx.fillStyle = b.c;
-      if (b.round) { ctx.beginPath(); ctx.arc(0, 0, b.w / 2, 0, Math.PI * 2); ctx.fill(); }
-      else ctx.fillRect(-b.w / 2, -b.h / 2, b.w, b.h * Math.abs(Math.cos(b.rot * 2)) + 1);
-      ctx.restore();
-    }
-    if (bits.length) requestAnimationFrame(tick);
-    else { running = false; ctx.clearRect(0, 0, innerWidth, innerHeight); }
-  }
-
-  // ---------- Glückwünsche ----------
-  let cheers = { count: 0, notes: [] };
-  function renderCheers() {
-    const n = cheers.count;
-    $("cheer-count").textContent = n ? n + (n === 1 ? " glückwunsch" : " glückwünsche") : "sei die erste person";
-    $("cheer").classList.toggle("done", cheered);
-    if (cheered) $("cheer-label").textContent = "nochmal konfetti";
-    $("notes-box").hidden = cheers.notes.length === 0;
-    $("notes-count").textContent = cheers.notes.length || "";
-    $("notes").innerHTML = cheers.notes.map((n) => `<li>
-        <p>${esc(n.text)}</p>
-        ${n.name ? `<span>von ${esc(n.name)}</span>` : ""}
-      </li>`).join("");
-  }
-
-  $("cheer").addEventListener("click", async () => {
-    const btn = $("cheer");
-    confetti(btn);
-    btn.classList.remove("bump"); void btn.offsetWidth; btn.classList.add("bump");
-    if (cheered) return;
-    try {
-      const { count } = await api("/api/cheers", { kind: "cheer" });
-      cheered = true; store.set("lied60-cheered", true);
-      cheers.count = count;
-      renderCheers();
-      $("note-name").value = $("note-name").value || $("name-input").value || store.get("lied60-name", "");
-      $("note-box").hidden = false;
-      $("note-box").scrollIntoView({ behavior: reduceMotion ? "auto" : "smooth", block: "nearest" });
-    } catch (e) { alert(e.message); }
-  });
-
-  $("note-skip").addEventListener("click", () => { $("note-box").hidden = true; });
-
-  $("note-form").addEventListener("submit", async (ev) => {
-    ev.preventDefault();
-    const data = Object.fromEntries(new FormData(ev.target).entries());
-    if (!data.text.trim()) { $("note-text").focus(); flash($("note-msg"), "schreib ein paar worte.", "err"); return; }
-    $("note-send").disabled = true;
-    try {
-      await api("/api/cheers", { kind: "note", ...data });
-      if (data.name) store.set("lied60-name", data.name);
-      confetti($("note-send"));
-      ev.target.reset();
-      $("note-box").hidden = true;
-      await load();
-      $("notes-box").scrollIntoView({ behavior: reduceMotion ? "auto" : "smooth", block: "start" });
-    } catch (e) {
-      flash($("note-msg"), e.message, "err");
-    } finally {
-      $("note-send").disabled = false;
-    }
-  });
 
   // ---------- Liste ----------
   const heart = '<svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 20.5s-7.5-4.6-9.3-9.2C1.6 8.4 3.3 5 6.6 4.6c2.1-.3 3.8.8 5.4 2.7 1.6-1.9 3.3-3 5.4-2.7 3.3.4 5 3.8 3.9 6.7-1.8 4.6-9.3 9.2-9.3 9.2z" stroke-linejoin="round"/></svg>';
@@ -319,9 +187,7 @@
     try {
       const data = await api("/api/songs");
       songs = data.songs || [];
-      cheers = data.cheers || cheers;
       render();
-      renderCheers();
     } catch { /* still beim Nachladen */ }
   }
 
@@ -402,7 +268,7 @@
       djKey = key; store.set("lied60-dj", key);
       $("dj-key").value = "";
       renderDj(); render();
-      document.querySelector(".charts").scrollIntoView({ behavior: reduceMotion ? "auto" : "smooth" });
+      document.querySelector(".charts").scrollIntoView({ behavior: "smooth" });
     } catch (e) { flash($("dj-msg"), e.message, "err"); }
   });
   renderDj();

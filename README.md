@@ -11,7 +11,7 @@ Die Seite läuft kostenlos auf Vercel. Die Wünsche liegen in einer Upstash-Redi
 | `config.js` | Name, Datum, Ort und wer für den Datenschutzhinweis verantwortlich ist. **Nur diese Datei musst du anpassen.** |
 | `index.html` | Die Seite |
 | `styles.css` | Aussehen |
-| `api/` | Speichern, Liken, „gespielt“ (nur DJ) und Glückwünsche |
+| `api/` | Speichern, Liken, und „gespielt“ (nur DJ) |
 | `lib/db.js` | Datenbankanbindung und automatische Löschfrist |
 | `fonts/` | Schrift Bricolage Grotesque (SIL Open Font License), liegt auf dem eigenen Server |
 
@@ -32,10 +32,6 @@ Tipp: In Vercel unter Settings → Domains kannst du die Adresse kürzer machen,
 Der DJ meldet sich unten auf der Seite über „dj-login“ an und kann dann Lieder als gespielt markieren. Gespielte Lieder rutschen für alle in „lief schon“.
 
 Das Passwort legst du in Vercel fest: Projekt → Settings → Environment Variables → Name `DJ_PASSWORT`, Wert = dein Passwort → Save. Danach einmal neu veröffentlichen (Deployments → … → Redeploy).
-
-## Glückwünsche
-
-Oben auf der Seite gibt es den Button „silvia gratulieren“. Ein Tipp zählt einen Glückwunsch und lässt Konfetti fliegen. Danach kann man noch eine Nachricht schreiben. Die Nachrichten stehen unten auf der Seite.
 
 ## Ohne GitHub
 
